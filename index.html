@@ -2,15 +2,66 @@
 <html>
   <head>
     <meta charset="UTF-8">
-    <title>Hello World!</title>
+    <title>League Of Legends Build Workshop</title>
+    <style>
+    #champions img {
+      width: 50px;
+      line-height: 10px;
+    }
+    #champions {
+      width: 50%;
+      display: inline-block;
+    }
+    #itemBrowser {
+      width: 50%;
+      display: inline-block;
+    }
+    .header {
+      padding: 0 0 10px 10px;
+    }
+    </style>
   </head>
   <body>
-    <h1>Hello World!</h1>
-    <!-- All of the Node.js APIs are available in this renderer process. -->
-    We are using Node.js <script>document.write(process.versions.node)</script>,
-    Chromium <script>document.write(process.versions.chrome)</script>,
-    and Electron <script>document.write(process.versions.electron)</script>.
+    <div class="header">
+      <button id="selectFolder">Select LoL Folder</button>
+    </div>
+    <div id="main">
+      <div id="champions">
+
+      </div>
+      <div id="itemBrowser">
+        
+      </div>
+    </div>
   </body>
+
+  <script type="text/dust" id="champTpl">
+    <img class='champIcon' data-key='{key}' src='{imageUrl}' alt='{name}'/>
+  </script>
+  <script type="text/dust" id="champBuildsTpl">
+    <button id="backToChamps">Back to Champions</button>
+    <h5>{champ.name}</h5>
+    <img src="{champ.imageUrl}"/>
+    <ul class="buildList">
+      {#builds}
+        <li class="build" data-path="{path}">{title}</li>
+      {/builds}
+    </ul>
+  </script>
+  <script type="text/dust" id="buildsTpl">
+    <button id="backToChamps">Back to Champions</button>
+    <h5>{build.title}</h5>
+    <div class="blocks">
+      {#build.blocks}
+        <div class="block">
+          <h5>{type}</h5>
+          {#items}
+            <img src="{imageUrl}" data-id="{id}"/>
+          {/items}
+        </div>
+      {/build.blocks}
+    </div>
+  </script>
 
   <script>
     // You can also require other files to run in this process
