@@ -6,7 +6,7 @@
   "scripts": {
     "start": "electron ."
   },
-  "repository": "https://github.com/raphaeleidus/lol-build-workshoplol",
+  "repository": "https://github.com/raphaeleidus/lol-build-workshop",
   "keywords": [
     "lol",
     "League of Legends"
