@@ -6,15 +6,12 @@ const riotUtils = require('./lib/riot-utils.js');
 const dust = require('dustjs-linkedin');
 const fs = require('fs');
 
-// riotApi.getItems().then(function(items){
-// 	items.forEach(function(item){
-// 	});
-// });
-
 const champsDiv = document.getElementById('champions');
+const itemBrowserDiv = document.querySelector('#itemBrowser .main-browser');
 dust.loadSource(dust.compile(document.getElementById('champTpl').textContent, 'champTemplate'));
 dust.loadSource(dust.compile(document.getElementById('champBuildsTpl').textContent, 'buildsTemplate'));
 dust.loadSource(dust.compile(document.getElementById('buildsTpl').textContent, 'buildTemplate'));
+dust.loadSource(dust.compile(document.getElementById('itemBrowserTpl').textContent, 'browserTemplate'));
 
 function createNode(htmlStr) {
     var frag = document.createDocumentFragment(),
@@ -38,6 +35,13 @@ function printMainChamps() {
 	});
 }
 printMainChamps();
+
+riotApi.getItems().then(function(items){
+	dust.render('browserTemplate', {items: items}, (err, out) => {
+		itemBrowserDiv.innerHTML = "";
+		itemBrowserDiv.appendChild(createNode(out));
+	});
+});
 
 const {dialog} = require('electron').remote;
 var folderPath = ""

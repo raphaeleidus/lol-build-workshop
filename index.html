@@ -10,14 +10,27 @@
     }
     #champions {
       width: 50%;
-      display: inline-block;
+      margin: 0 auto;
     }
     #itemBrowser {
       width: 50%;
-      display: inline-block;
+      margin: 0 auto;
     }
     .header {
       padding: 0 0 10px 10px;
+    }
+    #main {
+      display: flex;
+    }
+    .itemBrowser img {
+      width: 35px;
+      padding-right: 5px;
+    }
+    .itemBrowser li {
+      list-style-type: none;
+    }
+    .itemBrowser {
+      padding-left: 0;
     }
     </style>
   </head>
@@ -30,7 +43,11 @@
 
       </div>
       <div id="itemBrowser">
-        
+        <div class="form">
+          <input name="search" placeholder="Item Name"/>
+        </div>
+        <div class="main-browser">
+        </div>
       </div>
     </div>
   </body>
@@ -40,7 +57,7 @@
   </script>
   <script type="text/dust" id="champBuildsTpl">
     <button id="backToChamps">Back to Champions</button>
-    <h5>{champ.name}</h5>
+    <h3>{champ.name}</h3>
     <img src="{champ.imageUrl}"/>
     <ul class="buildList">
       {#builds}
@@ -50,7 +67,7 @@
   </script>
   <script type="text/dust" id="buildsTpl">
     <button id="backToChamps">Back to Champions</button>
-    <h5>{build.title}</h5>
+    <h3>{build.title}</h3>
     <div class="blocks">
       {#build.blocks}
         <div class="block">
@@ -61,6 +78,14 @@
         </div>
       {/build.blocks}
     </div>
+  </script>
+
+  <script type="text/dust" id="itemBrowserTpl">
+    <ul class="itemBrowser">
+      {#items}
+      <li data-id="{id}" data-desc="{sanitizedDescription}"><img src="{imageUrl}"/>{name} - {gold.total}</li>
+      {/items}
+    </ul>
   </script>
 
   <script>
