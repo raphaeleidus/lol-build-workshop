@@ -32,6 +32,22 @@
     .itemBrowser {
       padding-left: 0;
     }
+    .build input[name=buildTitle] {
+      font-size: 22px;
+      font-weight: bold;
+      width: 97%;
+    }
+    .build input[name=blockTitle] {
+      font-weight: bold;
+      width: 97%;
+    }
+    .build .block {
+      border-top: 1px solid grey;
+      width: 98%;
+      margin-top: 3px;
+      padding-top: 3px;
+      line-height: 25px;
+    }
     </style>
   </head>
   <body>
@@ -61,22 +77,28 @@
     <img src="{champ.imageUrl}"/>
     <ul class="buildList">
       {#builds}
-        <li class="build" data-path="{path}">{title}</li>
+        <li class="build" data-path="{path}" data-champion="{champ.key}">{title}</li>
       {/builds}
     </ul>
   </script>
   <script type="text/dust" id="buildsTpl">
     <button id="backToChamps">Back to Champions</button>
-    <h3>{build.title}</h3>
-    <div class="blocks">
-      {#build.blocks}
-        <div class="block">
-          <h5>{type}</h5>
-          {#items}
-            <img src="{imageUrl}" data-id="{id}"/>
-          {/items}
-        </div>
-      {/build.blocks}
+    <div class="build" data-champ="{champ}" data-path="{path}">
+      <input name="buildTitle" value="{build.title}" placeholder="Build Title">
+      <div class="blocks">
+        {#build.blocks}
+          <div class="block">
+            <input name="blockTitle" value="{type}" placeholder="Block Title"/>
+              <div>
+              {#items}
+                <img class="item" src="{imageUrl}" data-id="{id}"/>
+              {/items}
+              </div>
+          </div>
+        {/build.blocks}
+      </div>
+      <button name="addBlock">Add Block</button>
+      <button name="saveBuild">Save Build</button>
     </div>
   </script>
 

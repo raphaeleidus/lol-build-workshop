@@ -77,7 +77,6 @@ document.body.addEventListener("click", function(event){
 			}
 		}
 	} else if(elem.matches('.buildList .build')){
-		console.log(elem.dataset.path);
 		var build = JSON.parse(fs.readFileSync(elem.dataset.path, 'utf8'));
 		build.blocks = build.blocks.map(block=>{
 			block.items = block.items.map(item => {
@@ -87,11 +86,35 @@ document.body.addEventListener("click", function(event){
 			}).filter(item=>!!item);
 			return block;
 		});
-		dust.render('buildTemplate', {build: build}, (err, out) => {
+		dust.render('buildTemplate', {build: build, path: elem.dataset.path, champ: elem.dataset.champion}, (err, out) => {
 			champsDiv.innerHTML = "";
 			champsDiv.appendChild(createNode(out));
 		});
 	} else if(elem.matches('#backToChamps')){
 		printMainChamps();
+	} else if(elem.matches('button[name=saveBuild]')){
+		while(elem && !elem.matches('.build')){
+			elem = elem.parentElement;
+		}
+		if(!elem){
+			return alert("something went wrong");
+		}
+		var path = elem.dataset.path;
+		var champKey = elem.dataset.champ;
+		var buildData = {
+			title: elem.querySelector('[name=buildTitle]').value,
+			champion: champKey,
+			blocks: [].map.call(elem.querySelectorAll('.blocks .block'), blockEl=>{
+				return {
+					type: blockEl.querySelector('[name=blockTitle]').value,
+					items: [].map.call(blockEl.querySelectorAll('.item'), item=>item.dataset.id)
+				}
+			})
+		};
+		riotUtils.saveBuild(buildData, path);
+		alert(buildData.title + " has been saved");
+	} else if(elem.matches('button[name=addBlock]')){
+		let blockTpl = '<div class="block"><input name="blockTitle" value="" placeholder="Block Title"/><div></div></div>';
+		document.querySelector('.build .blocks').appendChild(createNode(blockTpl));
 	}
 });
