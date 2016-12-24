@@ -114,7 +114,7 @@ $('body').on('click', '.buildList .build', e=>{
 	build.blocks = build.blocks.map(block=>{
 		block.items = block.items.map(item => {
 			var count = item.count;
-			item = items.find(i=>i.id == item.id);
+			item = allItems.find(i=>i.id == item.id);
 			return item;
 		}).filter(item=>!!item);
 		return block;
