@@ -1,6 +1,6 @@
 {
   "name": "lol-build-workshop",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "description": "A 3rd Party League of Legends Build Editor",
   "main": "main.js",
   "scripts": {
