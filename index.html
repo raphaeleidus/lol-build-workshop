@@ -8,19 +8,31 @@
       width: 50px;
       line-height: 10px;
     }
+    body {
+      margin: 0;
+    }
     #champions {
       width: 50%;
       margin: 0 auto;
+      bottom: 0px;
+      overflow-y: scroll;
+      position: relative;
     }
     #itemBrowser {
       width: 50%;
       margin: 0 auto;
+      height: 100%;
+      overflow-y: scroll;
     }
     .header {
       padding: 0 0 10px 10px;
     }
     #main {
       display: flex;
+      position: absolute;
+      top: 41px;
+      bottom: 0px;
+      width: 100%;
     }
     .itemBrowser img {
       width: 35px;
