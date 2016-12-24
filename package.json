@@ -18,6 +18,10 @@
   },
   "dependencies": {
     "dustjs-linkedin": "^2.7.5",
-    "request": "^2.79.0"
+    "jquery": "^3.1.1",
+    "jquery-ui-bundle": "^1.11.4",
+    "jquery-ui-dist": "^1.12.1",
+    "request": "^2.79.0",
+    "tooltipster": "^4.1.6"
   }
 }

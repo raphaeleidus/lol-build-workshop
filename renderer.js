@@ -5,6 +5,9 @@ const riotApi = require('./lib/riot-api.js');
 const riotUtils = require('./lib/riot-utils.js');
 const dust = require('dustjs-linkedin');
 const fs = require('fs');
+window.$ = window.jQuery = require('jquery');
+require('jquery-ui-bundle');
+require('tooltipster');
 
 const champsDiv = document.getElementById('champions');
 const itemBrowserDiv = document.querySelector('#itemBrowser .main-browser');
@@ -12,24 +15,15 @@ dust.loadSource(dust.compile(document.getElementById('champTpl').textContent, 'c
 dust.loadSource(dust.compile(document.getElementById('champBuildsTpl').textContent, 'buildsTemplate'));
 dust.loadSource(dust.compile(document.getElementById('buildsTpl').textContent, 'buildTemplate'));
 dust.loadSource(dust.compile(document.getElementById('itemBrowserTpl').textContent, 'browserTemplate'));
-
-function createNode(htmlStr) {
-    var frag = document.createDocumentFragment(),
-        temp = document.createElement('div');
-    temp.innerHTML = htmlStr;
-    while (temp.firstChild) {
-        frag.appendChild(temp.firstChild);
-    }
-    return frag;
-}
+dust.loadSource(dust.compile(document.getElementById('buildItemTpl').textContent, 'buildItemTemplate'));
 
 function printMainChamps() {
-	champsDiv.innerHTML = "";
+	$(champsDiv).html("");
 	riotApi.getChamps().then(function(champs){
 		champs
 			.forEach(function(champ){
 				dust.render('champTemplate', champ, (err, out) => {
-					champsDiv.appendChild(createNode(out));
+					$(champsDiv).append($(out));
 				});
 			});
 	});
@@ -38,8 +32,8 @@ printMainChamps();
 
 riotApi.getItems().then(function(items){
 	dust.render('browserTemplate', {items: items}, (err, out) => {
-		itemBrowserDiv.innerHTML = "";
-		itemBrowserDiv.appendChild(createNode(out));
+		$(itemBrowserDiv).html($(out));
+		attachItemHovers();
 	});
 });
 
@@ -50,71 +44,144 @@ riotApi.getItems().then(function(list){
 	items = list;
 });
 
-document.body.addEventListener("click", function(event){
-	var elem = event.target;
-	if(elem.matches('#champions .champIcon')){
-		var promises = [
-			riotUtils.findBuilds(folderPath, elem.dataset.key),
-			riotApi.getChamps().then(champs=>champs.find(champ=>champ.key===elem.dataset.key))
-		];
-		Promise.all(promises).then(results=>{
-			var builds = results[0];
-			var champ = results[1];
-			console.log(builds, champ);
-			dust.render('buildsTemplate', {champ:champ, builds: builds}, (err, out) => {
-				champsDiv.innerHTML = "";
-				champsDiv.appendChild(createNode(out));
-			});
+$('body').on('click', '#champions .champIcon', e=>{
+	var elem = e.target;
+	var promises = [
+		riotUtils.findBuilds(folderPath, elem.dataset.key),
+		riotApi.getChamps().then(champs=>champs.find(champ=>champ.key===elem.dataset.key))
+	];
+	Promise.all(promises).then(results=>{
+		var builds = results[0];
+		var champ = results[1];
+		dust.render('buildsTemplate', {champ:champ, builds: builds}, (err, out) => {
+			$(champsDiv).html($(out));
 		});
-	} else if(elem.matches("#selectFolder")){
-		var path = dialog.showOpenDialog({properties: ['openDirectory'], defaultPath: 'C:\\Riot Games\\League of Legends\\'})[0];
-		if(path) {
-			if(fs.existsSync(path+'/Config/Champions')) {
-				elem.textContent = path;
-				folderPath = path;
-			} else {
-				alert("`"+path+"` doesn't appear to be a League Of Legends installation.");
-			}
+	});
+});
+
+$('body').on('click', '#selectFolder', e=>{
+	var elem = e.target;
+	var path = dialog.showOpenDialog({properties: ['openDirectory'], defaultPath: 'C:\\Riot Games\\League of Legends\\'})[0];
+	if(path) {
+		if(fs.existsSync(path+'/Config/Champions')) {
+			elem.textContent = path;
+			folderPath = path;
+		} else {
+			alert("`"+path+"` doesn't appear to be a League Of Legends installation.");
 		}
-	} else if(elem.matches('.buildList .build')){
-		var build = JSON.parse(fs.readFileSync(elem.dataset.path, 'utf8'));
-		build.blocks = build.blocks.map(block=>{
-			block.items = block.items.map(item => {
-				var count = item.count;
-				item = items.find(i=>i.id == item.id);
-				return item;
-			}).filter(item=>!!item);
-			return block;
-		});
-		dust.render('buildTemplate', {build: build, path: elem.dataset.path, champ: elem.dataset.champion}, (err, out) => {
-			champsDiv.innerHTML = "";
-			champsDiv.appendChild(createNode(out));
-		});
-	} else if(elem.matches('#backToChamps')){
-		printMainChamps();
-	} else if(elem.matches('button[name=saveBuild]')){
-		while(elem && !elem.matches('.build')){
-			elem = elem.parentElement;
-		}
-		if(!elem){
-			return alert("something went wrong");
-		}
-		var path = elem.dataset.path;
-		var champKey = elem.dataset.champ;
-		var buildData = {
-			title: elem.querySelector('[name=buildTitle]').value,
-			champion: champKey,
-			blocks: [].map.call(elem.querySelectorAll('.blocks .block'), blockEl=>{
-				return {
-					type: blockEl.querySelector('[name=blockTitle]').value,
-					items: [].map.call(blockEl.querySelectorAll('.item'), item=>item.dataset.id)
-				}
-			})
-		};
-		riotUtils.saveBuild(buildData, path);
-		alert(buildData.title + " has been saved");
-	} else if(elem.matches('button[name=addBlock]')){
-		let blockTpl = '<div class="block"><input name="blockTitle" value="" placeholder="Block Title"/><div></div></div>';
-		document.querySelector('.build .blocks').appendChild(createNode(blockTpl));
 	}
 });
+
+$('body').on('click', '.buildList .build', e=>{
+	var elem = e.target;
+	if(elem.dataset.path === "new-build") {
+		let champFolder = folderPath + '/Config/Champions/'+ elem.dataset.champion+'/Recommended';
+		let builds = fs.readdirSync(champFolder);
+		let i = 1;
+		while(builds.includes(elem.dataset.champion + i + '.json')) {
+			i++;
+		}
+		elem.dataset.path = champFolder + '/' + elem.dataset.champion + i + '.json';
+		riotUtils.saveBuild({
+			title: elem.dataset.champion + ' ' + i,
+			champion: elem.dataset.champion,
+			blocks: []
+		}, elem.dataset.path);
+	}
+	var build = JSON.parse(fs.readFileSync(elem.dataset.path, 'utf8'));
+	build.blocks = build.blocks.map(block=>{
+		block.items = block.items.map(item => {
+			var count = item.count;
+			item = items.find(i=>i.id == item.id);
+			return item;
+		}).filter(item=>!!item);
+		return block;
+	});
+	dust.render('buildTemplate', {build: build, path: elem.dataset.path, champ: elem.dataset.champion}, (err, out) => {
+		$(champsDiv).html($(out));
+		attachItemHovers();
+		addRemoveItemHander();
+	});
+});
+
+$('body').on('click', '#backToChamps', e=>{
+	printMainChamps();
+});
+
+$('body').on('click', 'button[name=saveBuild]', e=>{
+	var elem = e.target;
+	while(elem && !elem.matches('.build')){
+		elem = elem.parentElement;
+	}
+	if(!elem){
+		return alert("something went wrong");
+	}
+	var path = elem.dataset.path;
+	var champKey = elem.dataset.champ;
+	var buildData = {
+		title: elem.querySelector('[name=buildTitle]').value,
+		champion: champKey,
+		blocks: [].map.call(elem.querySelectorAll('.blocks .block'), blockEl=>{
+			return {
+				type: blockEl.querySelector('[name=blockTitle]').value,
+				items: [].map.call(blockEl.querySelectorAll('.item'), item=>item.dataset.id)
+			}
+		})
+	};
+	riotUtils.saveBuild(buildData, path);
+	alert(buildData.title + " has been saved");
+});
+
+const blockTpl = '<div class="block"><input name="blockTitle" value="" placeholder="Block Title"/><div class="blockItems"></div></div>';
+$('body').on('click', 'button[name=addBlock]', e=>{
+	$('.build .blocks').append(blockTpl);
+});
+function addRemoveItemHander() {
+	$('.blocks .block .blockItems .item').on('contextmenu', (event)=>{
+		$(event.target).remove();
+	});
+}
+
+function addDropTargets() {
+	$('.blocks .block .blockItems')
+		.append('<div class="dropTarget"></div>')
+		.find('.dropTarget')
+		.droppable({
+			drop: function(event, ui){
+				var draggable = ui.draggable;
+				var itemId = draggable.data('id');
+				riotApi.getItems().then(function(items){
+					var item = items.find(i=> i.id == itemId);
+					dust.render('buildItemTemplate', item, (err, out) => {
+						$(event.target).closest('.blockItems').append(out);
+						addRemoveItemHander();
+					});
+				});
+			}
+		});
+}
+
+function removeDropTargets() {
+	$('.blocks .block .dropTarget').remove();
+}
+
+
+
+function attachItemHovers() {
+	$('.item').tooltipster();
+	$('#itemBrowser .item').draggable({
+      containment: '#main',
+      stack: '.item',
+      cursor: 'move',
+      helper: "clone",
+      start: addDropTargets,
+      stop: removeDropTargets,
+      helper: function( event ) {
+      	var $el = $(event.target).closest('.item');
+      	var id = $el.data('id');
+      	var imageUrl = $el.find('img').attr('src');
+        return $( '<img class="item" src="'+imageUrl+'" data-id="'+id+'"/>' );
+      },
+      revert: true
+    });
+}

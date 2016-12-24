@@ -48,7 +48,21 @@
       padding-top: 3px;
       line-height: 25px;
     }
+    .build .block .dropTarget {
+      display: inline-block;
+      width: 50px;
+      height: 50px;
+      background-color: lightblue; 
+    }
+    .tooltip_templates {
+      display: none;
+    }
+    .tooltipster-content h5 {
+      font-size: 20px;
+      margin: 5px 0 10px 0;
+    }
     </style>
+    <link rel="stylesheet" type="text/css" href="css/tooltipster.bundle.css" />
   </head>
   <body>
     <div class="header">
@@ -79,6 +93,7 @@
       {#builds}
         <li class="build" data-path="{path}" data-champion="{champ.key}">{title}</li>
       {/builds}
+      <li class="build" data-path="new-build" data-champion="{champ.key}">New Build</li>
     </ul>
   </script>
   <script type="text/dust" id="buildsTpl">
@@ -89,9 +104,12 @@
         {#build.blocks}
           <div class="block">
             <input name="blockTitle" value="{type}" placeholder="Block Title"/>
-              <div>
+              <div class="blockItems">
               {#items}
-                <img class="item" src="{imageUrl}" data-id="{id}"/>
+                <img class="item" src="{imageUrl}" data-tooltip-content="#buildItem-{id}" data-id="{id}"/>
+                <div class="tooltip_templates">
+                  <div id="buildItem-{id}"><h5>{name} - {gold.total}</h5>{description|s}</div>
+                </div>
               {/items}
               </div>
           </div>
@@ -105,13 +123,23 @@
   <script type="text/dust" id="itemBrowserTpl">
     <ul class="itemBrowser">
       {#items}
-      <li data-id="{id}" data-desc="{sanitizedDescription}"><img src="{imageUrl}"/>{name} - {gold.total}</li>
+      <li class="item" data-id="{id}" data-tooltip-content="#shopItem-{id}"><img src="{imageUrl}"/>{name} - {gold.total}</li>
+      <div class="tooltip_templates">
+        <div id="shopItem-{id}">{description|s}</div>
+      </div>
       {/items}
     </ul>
   </script>
 
+  <script type="text/dust" id="buildItemTpl">
+    <img class="item" src="{imageUrl}" data-tooltip-content="#buildItem-{id}" data-id="{id}"/>
+    <div class="tooltip_templates">
+      <div id="buildItem-{id}"><h5>{name} - {gold.total}</h5>{description|s}</div>
+    </div>
+  </script>
+
   <script>
     // You can also require other files to run in this process
-    require('./renderer.js')
+    require('./renderer.js');
   </script>
 </html>
