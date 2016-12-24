@@ -9,8 +9,8 @@ window.$ = window.jQuery = require('jquery');
 require('jquery-ui-bundle');
 require('tooltipster');
 
-const champsDiv = document.getElementById('champions');
-const itemBrowserDiv = document.querySelector('#itemBrowser .main-browser');
+const champsDiv = $('#champions');
+const itemBrowserDiv = $('#itemBrowser .main-browser');
 dust.loadSource(dust.compile(document.getElementById('champTpl').textContent, 'champTemplate'));
 dust.loadSource(dust.compile(document.getElementById('champBuildsTpl').textContent, 'buildsTemplate'));
 dust.loadSource(dust.compile(document.getElementById('buildsTpl').textContent, 'buildTemplate'));
@@ -30,19 +30,41 @@ function printMainChamps() {
 }
 printMainChamps();
 
-riotApi.getItems().then(function(items){
+function renderStoreItems(items) {
 	dust.render('browserTemplate', {items: items}, (err, out) => {
 		$(itemBrowserDiv).html($(out));
 		attachItemHovers();
 	});
+}
+
+var allItems = [];
+$('#mainTags [type=checkbox]:checked').map(function(){return $(this).val()});
+$('#mainTags [type=checkbox], .form [name=search]').change(e=>{
+	var searchTerm = $('.form [name=search]').val().toLowerCase();
+	var selectedTags = [].slice.call($('#mainTags [type=checkbox]:checked').map(function(){return $(this).val()}));
+	var results = allItems;
+	if(searchTerm){
+		results = results.filter(i=>{
+			return i.name.toLowerCase().includes(searchTerm) || i.description.toLowerCase().includes(searchTerm);
+		});
+	}
+	if(selectedTags && selectedTags.length) {
+		results = results.filter(i=>{
+			return selectedTags.reduce((memo, tag)=>{
+				return memo && (i.tags||[]).includes(tag);
+			}, true);
+		});
+	}
+	renderStoreItems(results);
 });
+
+riotApi.getItems().then(items=>{
+	allItems = items;
+	return items;
+}).then(renderStoreItems);
 
 const {dialog} = require('electron').remote;
 var folderPath = ""
-var items = null;
-riotApi.getItems().then(function(list){
-	items = list;
-});
 
 $('body').on('click', '#champions .champIcon', e=>{
 	var elem = e.target;
