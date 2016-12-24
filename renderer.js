@@ -38,8 +38,7 @@ function renderStoreItems(items) {
 }
 
 var allItems = [];
-$('#mainTags [type=checkbox]:checked').map(function(){return $(this).val()});
-$('#mainTags [type=checkbox], .form [name=search]').change(e=>{
+function handleFormUpdate(){
 	var searchTerm = $('.form [name=search]').val().toLowerCase();
 	var selectedTags = [].slice.call($('#mainTags [type=checkbox]:checked').map(function(){return $(this).val()}));
 	var results = allItems;
@@ -56,7 +55,10 @@ $('#mainTags [type=checkbox], .form [name=search]').change(e=>{
 		});
 	}
 	renderStoreItems(results);
-});
+}
+$('#mainTags [type=checkbox]:checked').map(function(){return $(this).val()});
+$('#mainTags [type=checkbox], .form [name=search]').change(handleFormUpdate);
+$('.form [name=search]').keyup(handleFormUpdate);
 
 riotApi.getItems().then(items=>{
 	allItems = items;
