@@ -5,6 +5,7 @@ const riotApi = require('./lib/riot-api.js');
 const riotUtils = require('./lib/riot-utils.js');
 const dust = require('dustjs-linkedin');
 const fs = require('fs');
+const settings = require('electron-settings');
 window.$ = window.jQuery = require('jquery');
 require('jquery-ui-bundle');
 require('tooltipster');
@@ -90,11 +91,18 @@ $('body').on('click', '#selectFolder', e=>{
 		if(fs.existsSync(path+'/Config/Champions')) {
 			elem.textContent = path;
 			folderPath = path;
+			settings.set('path', path);
 		} else {
 			alert("`"+path+"` doesn't appear to be a League Of Legends installation.");
 		}
 	}
 });
+
+settings.get('path').then(path=>{
+	$('#selectFolder').text(path);
+	folderPath = path;
+});
+
 
 $('body').on('click', '.buildList .build', e=>{
 	var elem = e.target;
