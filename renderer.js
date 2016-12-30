@@ -156,9 +156,10 @@ $('body').on('click', 'button[name=saveBuild]', e=>{
 	alert(buildData.title + " has been saved");
 });
 
-const blockTpl = '<div class="block"><input name="blockTitle" value="" placeholder="Block Title"/><div class="blockItems"></div></div>';
+const blockTpl = '<div class="block"><input name="blockTitle" value="" placeholder="Block Title"/><div class="blockItems"><div class="dropTarget"></div></div></div>';
 $('body').on('click', 'button[name=addBlock]', e=>{
 	$('.build .blocks').append(blockTpl);
+	attachItemHovers();
 });
 function addRemoveItemHander() {
 	$('.blocks .block .blockItems .item').on('contextmenu', (event)=>{
@@ -166,27 +167,12 @@ function addRemoveItemHander() {
 	});
 }
 
-function addDropTargets() {
-	$('.blocks .block .blockItems')
-		.append('<div class="dropTarget"></div>')
-		.find('.dropTarget')
-		.droppable({
-			drop: function(event, ui){
-				var draggable = ui.draggable;
-				var itemId = draggable.data('id');
-				riotApi.getItems().then(function(items){
-					var item = items.find(i=> i.id == itemId);
-					dust.render('buildItemTemplate', item, (err, out) => {
-						$(event.target).closest('.blockItems').append(out);
-						addRemoveItemHander();
-					});
-				});
-			}
-		});
+function showDropTargets() {
+	$('.blocks .block .dropTarget').addClass('active');
 }
 
-function removeDropTargets() {
-	$('.blocks .block .dropTarget').remove();
+function hideDropTargets() {
+	$('.blocks .block .dropTarget').removeClass('active');
 }
 
 
@@ -198,8 +184,8 @@ function attachItemHovers() {
       stack: '.item',
       cursor: 'move',
       helper: "clone",
-      start: addDropTargets,
-      stop: removeDropTargets,
+      start: showDropTargets,
+      stop: hideDropTargets,
       helper: function( event ) {
       	var $el = $(event.target).closest('.item');
       	var id = $el.data('id');
@@ -208,4 +194,18 @@ function attachItemHovers() {
       },
       revert: true
     });
+    $('.blocks .block .dropTarget')
+    	.droppable({
+			drop: function(event, ui){
+				var draggable = ui.draggable;
+				var itemId = draggable.data('id');
+				riotApi.getItems().then(function(items){
+					var item = items.find(i=> i.id == itemId);
+					dust.render('buildItemTemplate', item, (err, out) => {
+						$(event.target).before(out);
+						addRemoveItemHander();
+					});
+				});
+			}
+		});
 }

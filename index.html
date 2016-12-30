@@ -63,8 +63,10 @@
     .build .block .dropTarget {
       display: inline-block;
       width: 50px;
-      height: 50px;
-      background-color: lightblue; 
+      height: 50px; 
+    }
+    .build .block .dropTarget.active {
+      background-color: lightblue;
     }
     .tooltip_templates {
       display: none;
@@ -132,14 +134,15 @@
         {#build.blocks}
           <div class="block">
             <input name="blockTitle" value="{type}" placeholder="Block Title"/>
-              <div class="blockItems">
-              {#items}
-                <img class="item" src="{imageUrl}" data-tooltip-content="#buildItem-{id}" data-id="{id}"/>
-                <div class="tooltip_templates">
-                  <div id="buildItem-{id}"><h5>{name} - {gold.total}</h5>{description|s}</div>
-                </div>
-              {/items}
+            <div class="blockItems">
+            {#items}
+              <img class="item" src="{imageUrl}" data-tooltip-content="#buildItem-{id}" data-id="{id}"/>
+              <div class="tooltip_templates">
+                <div id="buildItem-{id}"><h5>{name} - {gold.total}</h5>{description|s}</div>
               </div>
+            {/items}
+              <div class="dropTarget"></div>
+            </div>
           </div>
         {/build.blocks}
       </div>
