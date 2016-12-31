@@ -14,8 +14,7 @@
   "author": "Raphael Eidus",
   "license": "CC0-1.0",
   "devDependencies": {
-    "electron": "^1.4.1",
-    "electron-packager": "^8.4.0"
+    "electron-prebuilt-compile": "1.4.12"
   },
   "dependencies": {
     "dustjs-linkedin": "^2.7.5",
@@ -25,5 +24,29 @@
     "jquery-ui-dist": "^1.12.1",
     "request": "^2.79.0",
     "tooltipster": "^4.1.6"
+  },
+  "config": {
+    "forge": {
+      "make_targets": {
+        "win32": [
+          "squirrel"
+        ],
+        "darwin": [
+          "zip"
+        ],
+        "linux": [
+          "deb",
+          "rpm"
+        ]
+      },
+      "electronPackagerConfig": {},
+      "electronWinstallerConfig": {},
+      "electronInstallerDebian": {},
+      "electronInstallerRedhat": {},
+      "github_repository": {
+        "owner": "raphaeleidus",
+        "name": "lol-build-workshop"
+      }
+    }
   }
 }
