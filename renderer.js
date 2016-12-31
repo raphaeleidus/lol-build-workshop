@@ -164,7 +164,7 @@ $('body').on('click', 'button[name=saveBuild]', e=>{
 	alert(buildData.title + " has been saved");
 });
 
-const blockTpl = '<div class="block"><input name="blockTitle" value="" placeholder="Block Title"/><div class="blockItems"><div class="dropTarget"></div></div></div>';
+const blockTpl = '<div class="block"><input name="blockTitle" type="text" value="" placeholder="Block Title"/><div class="blockItems"><div class="dropTarget"></div></div></div>';
 $('body').on('click', 'button[name=addBlock]', e=>{
 	$('.build .blocks').append(blockTpl);
 	attachItemHovers();

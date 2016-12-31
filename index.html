@@ -17,6 +17,7 @@
       bottom: 0px;
       overflow-y: scroll;
       position: relative;
+      padding-left: 5px;
     }
     #itemBrowser {
       width: 50%;
@@ -52,6 +53,9 @@
     .build input[name=blockTitle] {
       font-weight: bold;
       width: 97%;
+    }
+    input[type="text"]{
+      border: 0px;
     }
     .build .block {
       border-top: 1px solid grey;
@@ -129,11 +133,11 @@
   <script type="text/dust" id="buildsTpl">
     <button id="backToChamps">Back to Champions</button>
     <div class="build" data-champ="{champ}" data-path="{path}">
-      <input name="buildTitle" value="{build.title}" placeholder="Build Title">
+      <input name="buildTitle" type="text" value="{build.title}" placeholder="Build Title">
       <div class="blocks">
         {#build.blocks}
           <div class="block">
-            <input name="blockTitle" value="{type}" placeholder="Block Title"/>
+            <input name="blockTitle" type="text" value="{type}" placeholder="Block Title"/>
             <div class="blockItems">
             {#items}
               <img class="item" src="{imageUrl}" data-tooltip-content="#buildItem-{id}" data-id="{id}"/>
